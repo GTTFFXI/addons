@@ -1,8 +1,8 @@
 _addon.name = 'AutoSkillchain'
 _addon.author = 'Ameilia'
-_addon.commands = {'autosc','asc'}
-_addon.version = '0.1.0'
-_addon.lastUpdate = '2017.05.08'
+_addon.commands = {'autosc','asc','autoskillchain'}
+_addon.version = '0.9.0'
+_addon.lastUpdate = '2018.07.02'
 
 require('luau')
 require('lor/lor_utils')
@@ -11,111 +11,17 @@ _libs.lor.req('all')
 _libs.lor.debug = false
 
 local rarr = string.char(129,168)
-
-local hps, mobs
+local bags = {[0]='inventory',[8]='wardrobe',[10]='wardrobe2',[11]='wardrobe3',[12]='wardrobe4'}
 local enabled = false
-local ws_cmd = ''
-local wsDelay = 2.5
-local chains = LT{
-	['SAM'] = LT{
-		{
-			['name'] = 'tier2',
-			['repeat'] = true,
-			['ws'] = L{'Tachi: Rana','Tachi: Shoha','Tachi: Fudo','Tachi: Kasha'}
-		},
-		{
-			['name'] = 'fudo',
-			['repeat'] = true,
-			['ws'] = L{'Tachi: Fudo','Tachi: Fudo'}
-		},
-		{
-			['name'] = 'jinpu',
-			['repeat'] = true,
-			['ws'] = L{'Tachi: Jinpu','Tachi: Jinpu'}
-		},
-		{
-			['name'] = 'distortion',
-			['repeat'] = false,
-			['ws'] = L{'Tachi: Enpi','Tachi: Enpi'}
-		},
-		{
-			['name'] = 'double light',
-			['repeat'] = false,
-			['ws'] = L{'Tachi: Fudo','Tachi: Kasha','Tachi: Shoha','Tachi: Fudo'}
-		},
-		{
-			['name'] = 'radiance',
-			['repeat'] = true,
-			['ws'] = L{'Tachi: Shoha','Tachi: Gekko','Tachi: Kasha','Tachi: Shoha','Tachi: Fudo'}
-		},
-		{
-			['name'] = 'shoha',
-			['repeat'] = true,
-			['ws'] = L{'Tachi: Shoha','Tachi: Shoha'}
-		}
-	},
-	['DRG'] = LT{
-		{
-			['name'] = 'tier2',
-			['repeat'] = true,
-			['ws'] = L{'Stardiver','Camlann\'s Torment','Geirskogul','Drakesbane'}
-		},
-		{
-			['name'] = 'darkness',
-			['repeat'] = true,
-			['ws'] = L{'Geirskogul','Stardiver'}
-		},
-		{
-			['name'] = 'light',
-			['repeat'] = true,
-			['ws'] = L{'Geirskogul','Camlann\'s Torment'}
-		},
-		{
-			['name'] = 'double light',
-			['repeat'] = false,
-			['ws'] = L{'Stardiver','Camlann\'s Torment','Drakesbane','Camlann\'s Torment'}
-		},
-		{
-			['name'] = 'long double light',
-			['repeat'] = false,
-			['ws'] = L{'Stardiver','Camlann\'s Torment','Geirskogul','Drakesbane','Camlann\'s Torment','Camlann\'s Torment'}
-		}
-	},
-	['DRK'] = LT{
-		{
-			['name'] = 'light',
-			['repeat'] = true,
-			['ws'] = L{'Scourge','Torcleaver'}
-		},
-		{
-			['name'] = 'double light',
-			['repeat'] = true,
-			['ws'] = L{'Resolution','Torcleaver','Scourge','Resolution','Torcleaver'}
-		},
-		{
-			['name'] = 'darkness',
-			['repeat'] = true,
-			['ws'] = L{'Entropy','Cross Reaper'}
-		},
-		{
-			['name'] = 'double darkness',
-			['repeat'] = false,
-			['ws'] = L{'Insurgency','Entropy','Cross Reaper','Quietus'}
-		},
-		{
-			['name'] = 'umbra',
-			['repeat'] = true,
-			['ws'] = L{'Insurgency','Entropy','Cross Reaper','Entropy'}
-		}
-	}
-}
+local wsDelay = 4
+local chains
 
 local player = windower.ffxi.get_player()
 local job = player.main_job
 local selected_chain_index = 1
 local chain_index = 1
-local activeChain = chains[job][1]
-local chain_name = activeChain['name']
+local activeChain
+local chain_name
 
 
 windower.register_event('addon command', function (command,...)
@@ -138,13 +44,14 @@ windower.register_event('addon command', function (command,...)
 		enabled = not enabled
 		chain_index = 1
 		print_status()
-	elseif command == 'mobs' then
-		pprint_tiered(mobs)
 	elseif command == 'status' then
 		print_status()
 	elseif command == 'cycle_chain' then
-		selected_chain_index = (selected_chain_index % #chains[job]) + 1
+		selected_chain_index = (selected_chain_index % #chains) + 1
 		set_chain(selected_chain_index)
+	elseif command == 'refresh' then
+		refresh_from_file()
+		print_status()
 	elseif S{'help','--help'}:contains(command) then
 		print_help()
 	elseif command == 'info' then
@@ -161,35 +68,43 @@ windower.register_event('addon command', function (command,...)
 	end
 end)
 
-
 windower.register_event('load', function()
 	if not _libs.lor then
 		windower.add_to_chat(39,'ERROR: .../Windower/addons/libs/lor/ not found! Please download: https://github.com/lorand-ffxi/lor_libs')
 	end
 	atcc(262, 'Welcome to AutoSkillChain!')
+	
+	refresh_from_file()
+	set_chain(1)
+	
 	autowsLastCheck = os.clock()
 	
 	windower.send_command('unbind ^k')
 	windower.send_command('unbind !k')
+	windower.send_command('unbind @k')
 	windower.send_command('bind ^k asc toggle')
 	windower.send_command('bind !k asc cycle_chain')
+	windower.send_command('bind @k asc refresh')
 end)
 
-
-windower.register_event('logout', function()
-	windower.send_command('lua unload autoskillchain')
+windower.register_event('status change', function()
+	chain_index = 1
 end)
 
 
 windower.register_event('zone change', function(new_id, old_id)
 	autowsLastCheck = os.clock() + 15
+	refresh_from_file()
 end)
 
 
 windower.register_event('job change', function()
+	player = windower.ffxi.get_player()
+	job = player.main_job
 	enabled = false
+	refresh_from_file()
+	set_chain(1)
 end)
-
 
 windower.register_event('prerender', function()
 	if enabled then
@@ -200,19 +115,22 @@ windower.register_event('prerender', function()
 			if (player ~= nil) and (player.status == 1) and (mob ~= nil) then
 				if player.vitals.tp > 999 then
 					handle_chain()
+					autowsLastCheck = now
 				end
 			end
-			autowsLastCheck = now
 		end
 	end
 end)
 
 function set_chain(chindex)
-	local player = windower.ffxi.get_player()
-	local job = player.main_job
-	if chindex <= #chains[job] then
+	if not chains_defined() then
+		no_chains()
+		return
+	end
+
+	if chindex <= #chains then
 		chain_index = 1
-		activeChain = chains[job][chindex]
+		activeChain = chains[chindex]
 		chain_name = activeChain['name']
 	end
 	print_status()
@@ -235,7 +153,39 @@ function handle_chain()
 	end
 end
 
+function chains_defined() 
+	return #chains > 0
+end
+function no_chains()
+	local player = windower.ffxi.get_player()
+	local job = player.main_job
+	local skill = weap_type()
+	atcc(263,'No skillchains defined for '..job..' '..skill)
+end
+
+function weap_type()
+	local items = windower.ffxi.get_items()
+	local i,bag = items.equipment.main, items.equipment.main_bag
+	local skill = 'Hand-to-Hand'
+	if i ~= 0 then  --0 => nothing equipped
+		skill = res.skills[res.items[items[bags[bag]][i].id].skill].en
+	end
+	return skill
+end
+
+function refresh_from_file()
+	player = windower.ffxi.get_player()
+	job = player.main_job
+	local skill = weap_type()
+	chains = _libs.lor.settings.load('data/'..job..'/'..skill..'.lua', {})
+end
+
 function print_status()
+	if not chains_defined() then
+		no_chains()
+		return
+	end
+	
 	local power = enabled and 'ON' or 'OFF'
 	local msg = '[AutoSC: %s] %s ':format(power, chain_name)
 	if enabled then
@@ -251,8 +201,10 @@ end
 
 function print_help()
 	local help = T{
-		['[on|off|toggle]'] = 'Enable / disable AutoSkillchain',
-		['cycle_chain'] = 'Cycle which skillchain will be attempted',
+		['[on|off|toggle]'] = 'Enable / disable autoSkillchain',
+		['CTRL-K'] = 'Toggle autoSkillchain enabled/disabled',
+		['ALT-K'] = 'Cycle through ',
+		['Windows-K'] = 'Refresh job/weapon type information',
 	}
 	--local mwwidth = max(unpack(map(string.wlen, table.keys(help))))
 	local mwwidth = col_width(help:keys())
@@ -261,3 +213,16 @@ function print_help()
 		atc(cmd:rpad(' ', mwwidth):colorize(263), desc:colorize(1))
 	end
 end
+
+
+-----------------------------------------------------------------------------------------------------------
+--[[
+Copyright © 2018, Ameilia
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+	* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+	* Neither the name of ffxiHealer nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Lorand BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--]]
+-----------------------------------------------------------------------------------------------------------

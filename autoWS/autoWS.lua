@@ -18,7 +18,7 @@ local enabled = false
 local useAutoRA = false
 local araDelayed = 0
 local ws_cmd = ''
-local autowsDelay = 0.8
+local autowsDelay = 1.5
 local tpThreshold = 999
 local defaults = {hps = {['<']=100, ['>']=5}}
 settings = _libs.lor.settings.load('data/settings.lua', defaults)
@@ -210,12 +210,6 @@ windower.register_event('load', function()
 	autowsLastCheck = os.clock()
 	load_settings()
 end)
-
-
-windower.register_event('logout', function()
-	windower.send_command('lua unload autows')
-end)
-
 
 windower.register_event('zone change', function(new_id, old_id)
 	autowsLastCheck = os.clock() + 15
