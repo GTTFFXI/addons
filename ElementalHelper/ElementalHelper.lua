@@ -31,17 +31,17 @@ _addon.version = '1.0'
 _addon.author = 'Ameilia'
 _addon.commands = {'eh','elementalhelper','elehelper'}
 
-elements = {'Stone','Water','Aero','Fire','Blizzard','Thunder'}
+elements = {'Stone','Water','Aero','Fire','Blizzard','Thunder','Light','Dark'}
 ancient = {'Quake','Flood','Tornado','Flare','Freeze','Burst'}
-helices = {'Geo','Hydro','Anemo','Pyro','Cryo','Iono'}
-storms = {'Sand','Rain','Wind','Fire','Hail','Thunder'}
+helices = {'Geo','Hydro','Anemo','Pyro','Cryo','Iono','Lumino','Nocto'}
+storms = {'Sand','Rain','Wind','Fire','Hail','Thunder','Aurora','Void'}
 gas = {'Stone','Water','Aero','Fira','Blizza','Thunda'}
 ras = {'Stone','Wate','Ae','Fi','Blizza','Thunda'}
-sc1 = {'Aero','Stone','Stone','Stone','Water','Water'}
-sc2 = {'Stone','Water','Aero','Fire','Blizzard','Thunder'}
-shots = {'Earth','Water','Wind','Fire','Ice','Thunder'}
-brd = {'Earth','Water','Wind','Fire','Ice','Lightning'}
-runes = {'Tellus','Unda','Flabra','Ignis','Gelus','Sulpor'}
+sc1 = {'Aero','Stone','Stone','Stone','Water','Water','Noctohelix','Blizzard'}
+sc2 = {'Stone','Water','Aero','Fire','Blizzard','Thunder','Luminohelix','Noctohelix'}
+shots = {'Earth','Water','Wind','Fire','Ice','Thunder','Light','Dark'}
+brd = {'Earth','Water','Wind','Fire','Ice','Lightning','Light','Dark'}
+runes = {'Tellus','Unda','Flabra','Ignis','Gelus','Sulpor','Lux','Tenebrae'}
 nin = {'Doton','Suiton','Huton','Katon','Hyoton','Raiton'}
 
 eleIndex = 1
@@ -57,6 +57,13 @@ function handle_spell(spelltype, cmdParams)
 			tier = ''
 		end
     end
+	
+	if(S{'Light','Dark'}:contains(spellstr)) then
+		if(S{'n','nuke','ga','ra','ja','ancient','nin'}:contains(spelltype)) then
+			windower.add_to_chat(50, 'ElementalHelper: No spell defined for '..spellstr..' '..spelltype..'.')
+			return
+		end
+	end
 	
 	if(S{'ga','ja'}:contains(spelltype)) then
 		spellstr = gas[eleIndex] .. spelltype
@@ -84,10 +91,10 @@ function handle_spell(spelltype, cmdParams)
 		spellstr = nin[eleIndex] .. ': '
 	elseif spelltype == 'sc1' then
 		spellstr = sc1[eleIndex]
-		windower.send_command('input /ja "Immanence" <me>;wait 1;input /p '..elements[eleIndex]..' Skillchain #1 (Fast>Fast)')
+		windower.send_command('input /ja "Immanence" <me>;wait 1;input /p '..elements[eleIndex]..' Skillchain #1')
 	elseif spelltype == 'sc2' then
 		spellstr = sc2[eleIndex]
-		windower.send_command('input /ja "Immanence" <me>;wait 1;input /p '..elements[eleIndex]..' Skillchain #2 (Fast)')
+		windower.send_command('input /ja "Immanence" <me>;wait 1;input /p '..elements[eleIndex]..' Skillchain #2')
 	end
     	
 	local spell = spellstr..' '..tier	
