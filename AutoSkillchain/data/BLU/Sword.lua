@@ -5,6 +5,11 @@ return {
 		['ws'] = L{'Chant du Cygne','Chant du Cygne'}
 	},
 	{
+		['name'] = 'radiance',
+		['repeat'] = true,
+		['ws'] = L{'Requiescat','Burning Blade','Flat Blade','Savage Blade','Chant du Cygne'}
+	},
+	{
 		['name'] = 'darkness',
 		['repeat'] = true,
 		['ws'] = L{'Requiescat','Chant du Cygne'}
