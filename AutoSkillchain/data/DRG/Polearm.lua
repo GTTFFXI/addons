@@ -11,7 +11,7 @@ return {
 		},
 		{
 			['name'] = 'radiance',
-			['repeat'] = false,
+			['repeat'] = true,
 			['ws'] = L{'Stardiver','Camlann\'s Torment','Drakesbane','Camlann\'s Torment'}
 		},
 		{
