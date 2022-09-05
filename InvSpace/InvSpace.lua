@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.]]
 
 _addon.name = 'InvSpace'
 _addon.author = 'Kenshi'
-_addon.version = '3.0'
+_addon.version = '3.3'
 
 
 require('luau')
@@ -41,12 +41,17 @@ defaults.ShowSack = true
 defaults.ShowCase = true
 defaults.ShowWardrobe = true
 defaults.ShowWardrobe2 = true
-defaults.ShowWardrobe3 = true
-defaults.ShowWardrobe4 = true
+defaults.ShowWardrobe3 = false
+defaults.ShowWardrobe4 = false
+defaults.ShowWardrobe5 = false
+defaults.ShowWardrobe6 = false
+defaults.ShowWardrobe7 = false
+defaults.ShowWardrobe8 = false
 defaults.ShowSafe = true
 defaults.ShowSafe2 = true
 defaults.ShowStorage = true
 defaults.ShowLocker = true
+defaults.ShowRecycle = false
 defaults.ShowTemporary = false
 defaults.ShowGil = true
 defaults.display = {}
@@ -77,13 +82,16 @@ settings = config.load(defaults)
 
 bags_text = texts.new(settings.display, settings)
 
-local bag_names = T{'Inventory', 'Satchel', 'Sack', 'Case', 'Wardrobe', 'Wardrobe2', 'Wardrobe3', 'Wardrobe4', 'Safe', 'Safe2', 'Storage', 'Locker', 'Temporary'}
-for i = 1, 13 do
-    if defaults['Show'..bag_names[i]] then
+local zoning_bool = false
+local bag_names = T{'Inventory', 'Satchel', 'Sack', 'Case', 'Wardrobe', 'Wardrobe2', 'Wardrobe3', 'Wardrobe4', 'Wardrobe5', 'Wardrobe6', 'Wardrobe7', 'Wardrobe8', 'Safe', 'Safe2', 'Storage', 'Locker', 'Temporary', 'Recycle'}
+for i = 1, 18 do
+    if settings['Show'..bag_names[i]] then
         bags_text:appendline(' ${current_'..i..'|0}${max_'..i..'|0}${diff_'..i..'|0}')
     end
 end
-bags_text:appendline(' ${gil|0}')
+if settings.ShowGil then
+    bags_text:appendline(' ${gil|0}')
+end
 
 -- Function to comma the gils
 
@@ -96,13 +104,19 @@ windower.register_event('incoming chunk',function(id)
     if id == 0xB and bags_text:visible() then
         zoning_bool = true
     elseif id == 0xA and zoning_bool then
-        zoning_bool = nil
+        zoning_bool = false
     end
 end)
 
--- Events
+windower.register_event('status change', function(new_status_id)
+	if new_status_id == 4 then --Cutscene/Menu
+		zoning_bool = true
+    else
+        zoning_bool = false
+    end
+end)
 
-windower.register_event('prerender', function()
+function Update()
     local bags = windower.ffxi.get_bag_info()
     local giles = windower.ffxi.get_items().gil
     if not windower.ffxi.get_info().logged_in or not windower.ffxi.get_player() then
@@ -114,11 +128,11 @@ windower.register_event('prerender', function()
         return
     else
         local info = S{}
-        for i = 1, 13 do
+        for i = 1, 18 do
             local color = bags[bag_names[i]:lower()].max - bags[bag_names[i]:lower()].count
-            info['current_'..i] = (
-                color == 0 and
-                    '\\cs(255,0,0)' .. ((bag_names[i]..': '):rpad(' ', 11)..bags[bag_names[i]:lower()].count:string():lpad(' ', 2))
+        info['current_'..i] = (
+            color == 0 and
+                '\\cs(255,0,0)' .. ((bag_names[i]..': '):rpad(' ', 11)..bags[bag_names[i]:lower()].count:string():lpad(' ', 2))
                 or color > 10 and
                     '\\cs(0,255,0)' .. ((bag_names[i]..': '):rpad(' ', 11)..bags[bag_names[i]:lower()].count:string():lpad(' ', 2))
                 or 
@@ -147,4 +161,6 @@ windower.register_event('prerender', function()
         bags_text:update(info)
         bags_text:show()
     end
-end)
+end
+
+Update:loop(0.5)

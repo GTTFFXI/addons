@@ -23,5 +23,10 @@ return {
 		['name'] = 'shun',
 		['repeat'] = true,
 		['ws'] = L{'Blade: Shun','Blade: Shun'}
+	},
+	{
+		['name'] = 'detonation',
+		['repeat'] = true,
+		['ws'] = L{'Blade: Retsu','Blade: To'}
 	}
 }
