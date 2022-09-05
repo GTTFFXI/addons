@@ -1,7 +1,7 @@
 return {
 	{
 		['name'] = 'radiance',
-		['repeat'] = false,
+		['repeat'] = true,
 		['ws'] = L{'Tachi: Fudo','Tachi: Kasha','Tachi: Shoha','Tachi: Fudo'}
 	},
 	{

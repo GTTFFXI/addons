@@ -12,7 +12,7 @@ return {
 	{
 		['name'] = 'darkness',
 		['repeat'] = true,
-		['ws'] = L{'Requiescat','Chant du Cygne'}
+		['ws'] = L{'Requiescat','Expiacion'}
 	},
 	{
 		['name'] = 'umbra',
@@ -24,4 +24,10 @@ return {
 		['repeat'] = true,
 		['ws'] = L{'Requiescat','Savage Blade','Chant du Cygne','Requiescat','Requiescat'}
 	},
+	{
+		['name'] = 'expiacion',
+		['repeat'] = true,
+		['ws'] = L{'Expiacion','Expiacion'}
+	},
+	
 }

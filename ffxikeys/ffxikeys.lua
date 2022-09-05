@@ -7,8 +7,18 @@ require('logger')
 local packets = require('packets')
 local settings = require('settings')
 local targets = require('targets')
+local res = require('resources')
+
+local keyids = S{
+	res.items:with('en', 'SP Gobbie Key').id,
+	res.items:with('en', 'Dial Key #ANV').id,
+	res.items:with('en','Dial Key #Fo').id,
+	res.items:with('en','Dial Key #Ab').id
+}
 
 local key_id = require('resources').items:with('en', 'SP Gobbie Key').id
+local anvkey_id = require('resources').items:with('en', 'Dial Key #ANV').id
+local fokey_id = require('resources').items:with('en','Dial Key #Fo').id
 local running = false
 local player_id
 local npc
@@ -56,7 +66,7 @@ function run()
 
     -- Find keys in the players inventory and trade one
     for index, item in pairs(bag) do
-        if type(item) == 'table' and item.id == key_id then
+        if type(item) == 'table' and (keyids:contains(item.id)) then
             local pkt = packets.new('outgoing', 0x036)
             if not pkt then
                 log('Unable to create outgoing packet')
