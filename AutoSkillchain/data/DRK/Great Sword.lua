@@ -12,6 +12,6 @@ return {
 	{
 		['name'] = 'torcleaver',
 		['repeat'] = true,
-		['ws'] = L{'torcleaver','Torcleaver'}
+		['ws'] = L{'Torcleaver','Torcleaver'}
 	},
 }

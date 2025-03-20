@@ -28,7 +28,7 @@ local distance_msg_enabled = true
 local use_keybinds = true
 local keybind = 'k'
 
-local max_distances = {['melee'] = 4.95, ['ranged'] = 21.99}
+local max_distances = {['melee'] = 6.95, ['ranged'] = 21.99}
 local mode = 'melee'
 local aftermath = false
 
@@ -42,7 +42,7 @@ windower.register_event('addon command', function (command,...)
 	local player = windower.ffxi.get_player()
 	local job = player.main_job
 	
-	if S{'reload','unload'}:contains(command) then
+	if S{'r','u','reload','unload'}:contains(command) then
 		windower.send_command('lua %s %s':format(command, _addon.name))
 	elseif S{'enable','on','start'}:contains(command) then
 		enabled = true
@@ -155,11 +155,14 @@ end)
 
 windower.register_event('prerender', function()
 	if enabled then
+		--atcc(123, 'enabled')
 		local now = os.clock()
+
 		if (now - autowsLastCheck) >= wsDelay and (now - araDelay >= 0) then
 			local player = windower.ffxi.get_player()
 			local mob = windower.ffxi.get_mob_by_target()
 			local ws = activeChain['ws'][chain_index]
+
 			if (player ~= nil) and (player.status == 1) and (mob ~= nil) then
 				if aftermath == true and can_aftermath() and not aftermath_up() then
 					if (player.vitals.tp > 2999) and distance_check(player, mob) then 
@@ -311,6 +314,8 @@ function perform_ws(ws)
 			input_str = 'input /pet "%s" <me>'
 		elseif pet_moves['smn_pacts']:contains(ws) then 
 			input_str = 'input /pet "%s" <t>'
+		elseif S{'myrkr','moonlight','starlight'}:contains(ws:lower()) then 
+			input_str = 'input /ws "%s" <me>'
 		end
 		
 		windower.send_command(input_str:format(ws))

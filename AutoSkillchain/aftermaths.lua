@@ -37,4 +37,20 @@ return{
 	["Hvergelmir"]="Myrkr",
 	["Gandiva"]="Jishnu's Radiance",
 	["Armageddon"]="Wildfire",
+
+	--prime
+	["Varga Purnikawa"]="Maru Kala",
+	["Mpu Gandring"]="Ruthless Stroke",
+	["Caliburnus"]="Imperator",
+	["Helheim"]="Fimbulvetr",
+	["Spalirisos"]="Blitz",
+	["Laphria"]="Disaster",
+	["Foenaria"]="Origin",
+	["Gae Buide"]="Diarmuid",
+	["Dokoku"]="Zesho Meppo",
+	["Kusanagi"]="Tachi: Mumei",
+	["Lorg Mor"]="Dagda",
+	["Opashoro"]="Oshala",
+	["Pinaka"]="Sarv",
+	["Earp"]="Terminus",
 }

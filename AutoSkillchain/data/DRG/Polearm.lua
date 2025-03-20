@@ -19,4 +19,10 @@ return {
 			['repeat'] = true,
 			['ws'] = L{'Stardiver','Stardiver'}
 		},
+		{
+			['name'] = 'drakesbane',
+			['repeat'] = true,
+			['ws'] = L{'Drakesbane','Drakesbane'}
+		},
+
 }

@@ -24,4 +24,14 @@ return {
 		['repeat'] = true,
 		['ws'] = L{'Insurgency','Insurgency'}
 	},
+	{
+		['name'] = 'Origin',
+		['repeat'] = true,
+		['ws'] = L{'Origin','Origin'}
+	},
+	{
+		['name'] = 'tree',
+		['repeat'] = true,
+		['ws'] = L{'Cross Reaper','Origin'}
+	},
 }

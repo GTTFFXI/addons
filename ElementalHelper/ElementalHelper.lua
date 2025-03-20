@@ -53,6 +53,8 @@ function handle_spell(spelltype, cmdParams)
     local tier = ''
 	local spellstr = elements[eleIndex]
 
+	local player = windower.ffxi.get_player()
+
 	if cmdParams[1] then
         tier = cmdParams[1]:upper()	
 		if(tier == 'I') then
@@ -61,7 +63,7 @@ function handle_spell(spelltype, cmdParams)
     end
 	
 	if(S{'Light','Dark'}:contains(spellstr)) then
-		if(S{'n','nuke','ga','ra','ja','ancient','nin'}:contains(spelltype)) then
+		if(S{'n','nuke','ga','ra','ja','ancient','anc','nin','bar','bars','bardebuff'}:contains(spelltype)) then
 			windower.add_to_chat(50, 'ElementalHelper: No spell defined for '..spellstr..' '..spelltype..'.')
 			return
 		end
@@ -69,7 +71,7 @@ function handle_spell(spelltype, cmdParams)
 	
 	if(S{'ga','ja'}:contains(spelltype)) then
 		spellstr = gas[eleIndex] .. spelltype
-	elseif spelltype == 'ancient' then
+	elseif (S{'ancient','anc'}:contains(spelltype))then
 		spellstr = ancient[eleIndex]
 	elseif spelltype == 'ra' then
 		spellstr = ras[eleIndex] .. spelltype
@@ -108,7 +110,15 @@ function handle_spell(spelltype, cmdParams)
 		spellstr = sc2[eleIndex]
 		windower.send_command('input /ja "Immanence" <me>;wait 1;input /p '..elements[eleIndex]..' Skillchain #2')
 	elseif spelltype == 'bar' then
-		spellstr = barelements[eleIndex]
+		if S{player.main_job, player.sub_job}:contains('WHM') then
+			spellstr = barelements[eleIndex]
+		elseif S{player.main_job, player.sub_job}:contains('SCH') then
+			windower.send_command('input /ja "Accession" <me>;wait 1;input /ja "Perpetuance" <me>;')
+			spellstr = 'Bar'..elements[eleIndex]
+			coroutine.sleep(5.0)
+		else
+			spellstr = 'Bar'..elements[eleIndex]
+		end
 		target = '<me>'
 	elseif spelltype == 'bardebuff' then
 		spellstr = bardebuffs[eleIndex]
@@ -147,7 +157,7 @@ windower.register_event('addon command',function(...)
 			report_nuke()
 			windower.send_command('ank setnuke '..elements[eleIndex])
 			windower.send_command('sing setelement '..brd[eleIndex])
-		elseif S{'storm','nuke','n','helix','ga','ja','ra','sc1','sc2','threnody','carol','ancient','nin','en','bar','bardebuff'}:contains(first) then
+		elseif S{'storm','nuke','n','helix','ga','ja','ra','sc1','sc2','threnody','carol','ancient','anc','nin','en','bar','bardebuff'}:contains(first) then
 			handle_spell(first, args)
 		elseif first == 'bars' then
 			handle_spell('bar', args)
@@ -193,7 +203,7 @@ function print_help()
 	windower.add_to_chat(50, '   cycle - Cycles the element')
 	windower.add_to_chat(50, '   set (element) - Sets the element directly')
 	windower.add_to_chat(50, '   nuke/n (I,II,III,IV,V,VI) - Cast (element) (tier)')
-	windower.add_to_chat(50, '   ancient (I,II) - Cast AM (tier)')
+	windower.add_to_chat(50, '   ancient/anc (I,II) - Cast AM (tier)')
 	windower.add_to_chat(50, '   ga (I,II,III) - Cast (element)ga (tier)')
 	windower.add_to_chat(50, '   ja - Cast (element)ja')
 	windower.add_to_chat(50, '   en (I, II) - cast En(element) (tier)')

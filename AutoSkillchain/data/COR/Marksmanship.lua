@@ -13,5 +13,5 @@ return {
 		['name'] = 'Light',
 		['repeat'] = true,
 		['ws'] = L{'Last Stand','Savage Blade'}
-	},		
+	}
 }
