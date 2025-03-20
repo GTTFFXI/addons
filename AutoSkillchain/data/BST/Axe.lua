@@ -23,5 +23,10 @@ return {
 		['name'] = 'dark',
 		['repeat'] = true,
 		['ws'] = L{'Cloudsplitter','Cloudsplitter'}
+	},
+	{
+		['name'] = 'calamity',
+		['repeat'] = true,
+		['ws'] = L{'Calamity','Calamity'}
 	}
 }

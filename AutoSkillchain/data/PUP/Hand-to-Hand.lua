@@ -23,5 +23,10 @@ return {
 		['name'] = 'pummel light',
 		['repeat'] = true,
 		['ws'] = L{'Stringing Pummel','Victory Smite','Shijin Spiral','Victory Smite'}	
-	}
+	},
+	{
+		['name'] = 'howling',
+		['repeat'] = true,
+		['ws'] = L{'Howling Fist','Howling Fist'}
+	},
 }
